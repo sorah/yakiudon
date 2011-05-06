@@ -1,11 +1,16 @@
 $:.unshift File.dirname(__FILE__)
 
+require 'rubygems'
+
 module Yakiudon
-  PUBLIC = "#{File.dirname(__FILE__)}/../public"
-  TEMPLATE = "#{File.dirname(__FILE__)}/../template"
-  DB = "#{File.dirname(__FILE__)}/../db"
+  CONFIG = "#{File.dirname(__FILE__)}/../config.yml"
 end
 
+require "yakiudon/config"
 require "yakiudon/model"
 require "yakiudon/html"
-require "yakiudon/editor"
+
+if __FILE__ == $0
+  require "sinatra"
+  require "yakiudon/editor"
+end
