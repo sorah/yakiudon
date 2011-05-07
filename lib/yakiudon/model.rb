@@ -15,6 +15,7 @@ module Yakiudon
             @@data ||= {}
           end
           @@data["file"] ||= {}
+          @@data.each{|k,v| v.respond_to?(:force_encoding) && v.force_encoding("UTF-8") }
         end
 
         def method_missing(name,*args)
