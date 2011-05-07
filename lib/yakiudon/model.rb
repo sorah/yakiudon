@@ -72,7 +72,7 @@ module Yakiudon
 
       def html
         if @html; @html
-        elsif File.exist?(@html_path); @html = File.read(@html_path)
+        elsif File.exist?(@html_path); @html = File.read(@html_path).force_encoding("UTF-8")
         else; nil
         end
       end
