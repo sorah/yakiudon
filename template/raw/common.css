@@ -1,0 +1,66 @@
+* {
+	font-family: sans-serif;
+}
+
+body {
+	text-align: center;
+}
+
+#box {
+	width: 700px;
+	text-align: left;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+h1 {
+	font-size: 48px;
+}
+h1 a{
+	text-decoration: none;
+	color: black;
+}
+h1 a:hover {
+	border-bottom: 3px solid gray;
+}
+
+h3 {
+	font-size: 24px;
+	margin-bottom: 0px;
+	padding-bottom: 2px;
+}
+h3 a {
+	text-decoration: none;
+	color: black;
+}
+h3 a:hover {
+	color: #474747;
+}
+
+.pubdt, .artedit {
+	color: #999;
+	font-size: 14px;
+}
+
+h2 {
+	font-size: 18px;
+	padding-left: 8px;
+	border-left: 8px solid black;
+}
+
+article {
+}
+
+hr {
+	border: 1px solid #DDD;
+	margin-top: 3px;
+	margin-bottom: 3px;
+}
+
+footer {
+	border-top: 1px solid #BBB;
+	text-align: center;
+	font-size: 12px;
+	padding-top: 10px;
+	margin-top: 20px;
+}

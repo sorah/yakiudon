@@ -1,5 +1,6 @@
 require 'yaml'
 require 'bluecloth'
+require 'erb'
 
 module Yakiudon
   module Model
@@ -30,13 +31,15 @@ module Yakiudon
         end
 
         def save
-          YAML.dump(@@data,open(FILE,"w"))
+          open(FILE,"w"){|io| io.puts YAML.dump(@@data) }
           self
         end
       end
     end
 
     class Day
+      include ERB::Util
+
       SUFFIX_MARKDOWN = ".mkd"
       SUFFIX_HTML = ".html"
 
@@ -63,6 +66,7 @@ module Yakiudon
       def markdown=(x)
         @markdown = x
         @html = BlueCloth.new(@markdown).to_html
+        @html.gsub!(/<(\/?)h(.)>/){|str| "<#{$1}h#{(_=$2.to_i+Config.head_shift) >= 6 ? 6 : _}>"}
         @markdown
       end
 
@@ -76,6 +80,40 @@ module Yakiudon
       def meta
         Meta["article"] ||= {}
         Meta["article"][@id] ||= {}
+      end
+
+      def delete
+        if File.exist?("#{Config.public}/#{@id}.html")
+          File.safe_delete("#{Config.public}/#{@id}.html")
+        end
+        if File.exist?("#{Config.db}/#{@id}.mkd")
+          File.safe_delete("#{Config.db}/#{@id}.mkd")
+        end
+        if File.exist?("#{Config.db}/#{@id}.html")
+          File.safe_delete("#{Config.db}/#{@id}.html")
+        end
+
+        Meta["file"].delete("#{@id}.html")
+        Meta["article"].delete(@id)
+
+        a = Meta.files_include(@id)
+        a.each do |f|
+          Meta["file"][f].delete(@id)
+          if Meta["file"][f].empty? && f != "index.html"
+            File.safe_delete("#{Config.public}/#{f}")
+            a.delete(f)
+          end
+        end
+        Yakiudon::HTML.renew_index
+        Meta.save
+        Yakiudon::HTML.build(*a)
+
+        a
+      end
+
+      def render
+        day = self
+        ERB.new(File.read("#{Config.template}/article.erb")).result(binding)
       end
 
       def save

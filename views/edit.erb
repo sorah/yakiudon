@@ -1,4 +1,12 @@
 <form action="<%= Yakiudon::Config.url %>/edit/<%= @day.id %>" method="POST">
+	<%= @day.id %> - <input type="input" name="title" style="width: 415px"><br>
 	<textarea name="body" style="width: 500px; height: 400px"><%= @day.markdown %></textarea><br>
-	<input type="submit" value="Save">
+	<input type="submit" name="a" value="Save">
+</form>
+<form action="<%= Yakiudon::Config.url %>/edit/<%= @day.id %>" method="POST">
+	<input type="submit" name="a" value="Delete">
+</form>
+
+<form action="<%= Yakiudon::Config.url %>/build" method="POST">
+	<input type="submit" name="a" value="Rebuild All pages (takes long time)">
 </form>

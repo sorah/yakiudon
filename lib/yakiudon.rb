@@ -7,10 +7,7 @@ module Yakiudon
 end
 
 require "yakiudon/config"
+require "yakiudon/misc"
 require "yakiudon/model"
 require "yakiudon/html"
 
-if __FILE__ == $0
-  require "sinatra"
-  require "yakiudon/editor"
-end

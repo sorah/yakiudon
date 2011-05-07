@@ -1,0 +1,9 @@
+		<article>
+			<header>
+				<h3><a href="<%= Config.url %>/<%=u day.id %>.html"><%=h day.id %>: <%=h day.meta["title"] %></a></h3>
+				<span class="pubdt">Published at <time pubdate><%=h day.meta["created_at"].iso8601 %></time></span>
+				&nbsp;
+				<a class="artedit" href="<%= Config.url %>/edit/<%=u day.id %>">Edit</a>
+			</header>
+			<%= day.html %>
+		</article>

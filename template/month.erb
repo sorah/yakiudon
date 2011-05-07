@@ -1,1 +1,6 @@
-<%= days.inspect %>
+<section>
+	<h2><%=h year %>/<%=h month %></h2>
+	<% days.each do |day| %>
+		<%= day.render %>
+	<% end %>
+</section>

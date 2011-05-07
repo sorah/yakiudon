@@ -1,1 +1,11 @@
-<%= days.map(&:html).join("<hr>") %>
+<section>
+	<% days.each do |day| %>
+		<%= day.render %>
+	<% end %>
+</section>
+<section>
+	<h2>Archive</h2>
+	<% Yakiudon::Model::Day.all.map{|d|[d.id[0..3],d.id[4..5]]}.uniq.inject({}){|r,i| (r[i[0]]||=[])<<i[1];r }.each do |y,m| %>
+		<%=h y%> <%= ("01".."12").map{|x| m.include?(x) ? "<a href=\"#{Yakiudon::Config.url}/#{y}#{x}.html\">#{x}</a>" : x }.join(" ") %><br>
+	<% end %>
+</section>

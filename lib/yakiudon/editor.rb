@@ -30,16 +30,25 @@ post "/edit/:id" do
 	id = params[:id].gsub(/[^\d]/,"")
 	return "invalid id" unless id.size == 8
   day = Yakiudon::Model::Day.new(id)
-	day.markdown = params[:body]
-	day.save
+	if params[:a] == "Delete"
+		day.delete
+		redirect "#{Yakiudon::Config.url}/index.html"
+	else
+		day.markdown = params[:body]
+		day.meta["title"] = params[:title]
+		day.save
 
-	Yakiudon::HTML.renew_index
-	Yakiudon::Model::Meta.save
-	Yakiudon::HTML.build_includes(id)
+		Yakiudon::HTML.renew_index
+		Yakiudon::Model::Meta.save
+		Yakiudon::HTML.build_includes(id)
 
-	redirect "#{Yakiudon::Config.url}/#{id}.html"
+		redirect "#{Yakiudon::Config.url}/#{id}.html"
+	end
 end
 
 post "/build" do
 	protected!
+	Yakiudon::HTML.renew_index
+	Yakiudon::HTML.build_all
+	redirect "#{Yakiudon::Config.url}/index.html"
 end

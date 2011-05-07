@@ -12,7 +12,8 @@ module Yakiudon
 										"recent"      => 10,
 										"url"         => "/",
 				            "title"       => "Untitled Yakiudon",
-				            "description" => "With some chunky bacons."}
+				            "description" => "With some chunky bacons.",
+				            "head_shift"  => 3}
 				@@yaml.merge!(YAML.load_file(CONFIG)) if File.exist?(CONFIG)
 				@@yaml["url"].sub!(/\/$/,"")
 				@@yaml

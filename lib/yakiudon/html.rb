@@ -1,21 +1,33 @@
 require 'fileutils'
-require 'cgi'
 require 'erb'
 require 'time'
 
 module Yakiudon
   module HTML
     class << self
+      include ERB::Util
+
+      def render(e="")
+        if File.exist?("#{Config.template}/layout.erb")
+          b = binding
+          eval e, b
+          ERB.new(File.read("#{Config.template}/layout.erb")).result(b)
+        else
+          yield
+        end
+      end
+
       def build(*files)
         files.each do |f|
+          title = nil
           case f
           when "index.html"
-            days = Model::Meta["index.html"].map { |i| Model::Day.new(i) }
-            result = ERB.new(File.read("#{Config.template}/index.erb")).result(binding) 
+            days = Model::Meta["file"]["index.html"].map { |i| Model::Day.new(i) }
+            result = self.render("title = #{title.inspect}") { ERB.new(File.read("#{Config.template}/index.erb")).result(binding) }
             open("#{Config.public}/index.html","w"){|io|io.puts result}
 
-          when "feed.rdf"
-            days = Model::Meta["feed.rdf"].map { |i| Model::Day.new(i) }
+          when "feed.xml"
+            days = Model::Meta["file"]["feed.xml"].map { |i| Model::Day.new(i) }
             r = <<-EOR
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
@@ -31,7 +43,7 @@ module Yakiudon
     <item>
       <title>#{d.id}</title>
       <description>
-        #{CGI.escapeHTML(d.html)}
+        #{h d.html}
       </description>
       <link>#{Config.url}/#{d.id}.html</link>
       <guid>#{Config.url}/#{d.id}.html</guid>
@@ -43,23 +55,26 @@ module Yakiudon
   </channel>
 </rss>
             EOR
-            open("#{Config.public}/feed.rdf","w"){|io|io.puts r}
+            open("#{Config.public}/feed.xml","w"){|io|io.puts r}
 
           when /^(\d\d\d\d)(\d\d).html$/
             year = $1
             month = $2
+            title = "#{year}/#{month}"
             days = Model::Meta["file"]["#{year}#{month}.html"].map { |i| Model::Day.new(i) }
-            result = ERB.new(File.read("#{Config.template}/month.erb")).result(binding) 
+            result = self.render("title = #{title.inspect}") { ERB.new(File.read("#{Config.template}/month.erb")).result(binding) }
             open("#{Config.public}/#{year}#{month}.html","w"){|io|io.puts result}
           when /^(\d\d\d\d)(\d\d)(\d\d).html$/
             year = $1
             month = $2
             day = $3
             d = Model::Day.new("#{year}#{month}#{day}")
-            result = ERB.new(File.read("#{Config.template}/day.erb")).result(binding) 
+            title = "#{year}/#{month}/#{day} #{d.meta["title"]}"
+            result = self.render("title = #{title.inspect}") { ERB.new(File.read("#{Config.template}/day.erb")).result(binding) }
             open("#{Config.public}/#{year}#{month}#{day}.html","w"){|io|io.puts result}
           end
         end
+        FileUtils.cp_r(Dir["#{Config.template}/raw/*"],Config.public)
       end
 
       def build_includes(*ids)
@@ -71,17 +86,16 @@ module Yakiudon
         files =  [diarys]
         files << diarys.map{|fn| fn.gsub(/\d\d.html$/,".html") }.uniq
         files << "index.html"
-        files << "feed.rdf"
+        files << "feed.xml"
 
-        files.uniq
+        self.build(*files.flatten.uniq)
 
-        FileUtils.cp_r(Dir["#{Config.template}/raw/*"],Config.public)
         self
       end
 
       def renew_index
         Model::Meta["file"]["index.html"] = Model::Day.all.map{|d|d.id}.sort.reverse.take(Config.recent)
-        Model::Meta["file"]["feed.rdf"] = Model::Meta["file"]["index.html"]
+        Model::Meta["file"]["feed.xml"] = Model::Meta["file"]["index.html"]
       end
     end
   end
