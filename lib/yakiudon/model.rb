@@ -112,7 +112,7 @@ module Yakiudon
         a
       end
 
-      def render
+      def render(b=nil)
         day = self
         ERB.new(File.read("#{Config.template}/article.erb")).result(binding)
       end
