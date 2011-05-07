@@ -1,3 +1,3 @@
-require "#{File.dirname(__FILE__)}/lib/yakiudon"
+require "#{File.dirname(__FILE__)}/app.rb"
 
 run Sinatra::Application
