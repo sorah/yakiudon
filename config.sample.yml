@@ -1,0 +1,32 @@
+# Yakiudon sample config yaml file
+
+# Public directory. (optional)
+# Default: YAKIUDON_ROOT/public
+
+# Template directory. (optional)
+# Default: YAKIUDON_ROOT/template
+
+# Database directory. (optional)
+# Default: YAKIUDON_ROOT/db
+
+# Username (default: yaki)
+user: yaki
+
+# Password (password: udon)
+password: udon
+
+# Count of article in index.html (default: 10)
+recent: 10
+
+# URL of site. This is needed to generating RSS. Default is "/".
+url: /
+
+# Title of site. (default: Untitled Yakiudon)
+title: Untitled Yakiudon
+
+# Description of site. This is used on RSS. (default: With some chunky bacons.)
+description: With some chunky bacons.
+
+# Shift <h[1-6]> tag. (default: 3)
+# If head_shift=3, <h1> become <h3> in article body.
+head_shift: 3
