@@ -67,7 +67,7 @@ module Yakiudon
       def markdown=(x)
         @markdown = x
         @html = BlueCloth.new(@markdown).to_html
-        @html.gsub!(/<(\/?)h(.)>/){|str| "<#{$1}h#{(_=$2.to_i+Config.head_shift) >= 6 ? 6 : _}>"}
+        @html.gsub!(/<(\/?)h([1-6])>/){|str| "<#{$1}h#{(_=$2.to_i+Config.head_shift) >= 6 ? 6 : _}>"}
         @markdown
       end
 
