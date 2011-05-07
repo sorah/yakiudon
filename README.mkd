@@ -1,0 +1,39 @@
+# Yakiudon: Simple diary tool generates static HTML.
+
+## Description
+
+This is simply web diary tool generates static HTML.
+
+Written in Sinatra.
+
+## How to use
+
+    $ git clone https://github.com/sorah/yakiudon.git /path/to/install
+		$ cd /path/to/install
+		$ bundle install
+		$ cp config.sample.yml config.yml
+		$ vim config.yml
+
+Next, setup `/path/to/install` as Rack application.
+
+Finally access to `http://SITEURL/edit` and write your first diary!
+
+## Customize
+
+TBD
+
+## FAQ
+
+### Q. I want dynamic HTML but simple tool!
+
+Use [yakisoba](http://github.com/hinassan/yakisoba).
+
+### Q. Why you don't make this tool can write more than 2 articles in same day? 
+
+I don't need to write more than 2 articles in same day.
+
+This is similar to Hatena Diary.
+
+### Q. Hi
+
+Hi
