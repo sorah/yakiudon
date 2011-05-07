@@ -18,6 +18,8 @@ Next, setup `/path/to/install` as Rack application.
 
 Finally access to `http://SITEURL/edit` and write your first diary!
 
+NOTE: Diary should be formatted in Markdown.
+
 ## Customize
 
 TBD
