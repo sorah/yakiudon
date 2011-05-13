@@ -65,7 +65,7 @@ module Yakiudon
       end
 
       def markdown=(x)
-        @markdown = x
+        @markdown = x.gsub(/\r\n/,"\n")
         @html = BlueCloth.new(@markdown).to_html
         @html.gsub!(/<(\/?)h([1-6])>/){|str| "<#{$1}h#{(_=$2.to_i+Config.head_shift) >= 6 ? 6 : _}>"}
         @markdown
@@ -81,6 +81,16 @@ module Yakiudon
       def meta
         Meta["article"] ||= {}
         Meta["article"][@id] ||= {}
+      end
+
+      def to_hash
+        {"html"       => self.html,
+         "markdown"   => self.markdown,
+         "id"         => self.id,
+         "title"      => self.meta["title"],
+         "created_at" => self.meta["created_at"],
+         "updated_at" => self.meta["updated_at"],
+         "url"        => "#{Config.url}/#{self.id}.html"}
       end
 
       def delete
@@ -131,8 +141,11 @@ module Yakiudon
         self.meta["updated_at"] = Time.now
         self.meta["created_at"] ||= self.meta["updated_at"]
         Meta["file"]["#{@id}.html"] = [@id]
+        Meta["file"]["#{@id}.json"] = [@id]
         Meta["file"]["#{@id[0..5]}.html"] ||= []
+        Meta["file"]["#{@id[0..5]}.json"] ||= []
         Meta["file"]["#{@id[0..5]}.html"] << @id unless Meta["file"]["#{@id[0..5]}.html"].include?(@id)
+        Meta["file"]["#{@id[0..5]}.json"] << @id unless Meta["file"]["#{@id[0..5]}.json"].include?(@id)
         self
       end
     end

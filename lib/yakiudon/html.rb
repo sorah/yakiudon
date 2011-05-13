@@ -1,6 +1,7 @@
 require 'fileutils'
 require 'erb'
 require 'time'
+require 'json'
 
 module Yakiudon
   module HTML
@@ -25,7 +26,10 @@ module Yakiudon
             days = Model::Meta["file"]["index.html"].map { |i| Model::Day.new(i) }
             result = self.render("title = #{title.inspect}") { ERB.new(File.read("#{Config.template}/index.erb")).result(binding) }
             open("#{Config.public}/index.html","w"){|io|io.puts result}
-
+          when "index.json"
+            days = Model::Meta["file"]["index.html"].map { |i| Model::Day.new(i) }
+            result = {"days" => days.map(&:to_hash)}
+            open("#{Config.public}/index.json","w"){|io|io.puts result}
           when "feed.xml"
             days = Model::Meta["file"]["feed.xml"].map { |i| Model::Day.new(i) }
             r = <<-EOR
@@ -57,21 +61,35 @@ module Yakiudon
             EOR
             open("#{Config.public}/feed.xml","w"){|io|io.puts r}
 
-          when /^(\d\d\d\d)(\d\d).html$/
+          when /^(\d\d\d\d)(\d\d).(html|json)$/
             year = $1
             month = $2
-            title = "#{year}/#{month}"
+            is_json = $3 == "json"
             days = Model::Meta["file"]["#{year}#{month}.html"].map { |i| Model::Day.new(i) }
-            result = self.render("title = #{title.inspect}") { ERB.new(File.read("#{Config.template}/month.erb")).result(binding) }
-            open("#{Config.public}/#{year}#{month}.html","w"){|io|io.puts result}
-          when /^(\d\d\d\d)(\d\d)(\d\d).html$/
+            if is_json
+              result = {"year" => year.to_i, "month" => month.to_i,
+                        "days" => days.map(&:to_hash)}.to_json
+              open("#{Config.public}/#{year}#{month}.json","w"){|io|io.puts result}
+            else
+              title = "#{year}/#{month}"
+              result = self.render("title = #{title.inspect}") { ERB.new(File.read("#{Config.template}/month.erb")).result(binding) }
+              open("#{Config.public}/#{year}#{month}.html","w"){|io|io.puts result}
+            end
+          when /^(\d\d\d\d)(\d\d)(\d\d).(html|json)$/
             year = $1
             month = $2
             day = $3
+            is_json = $4 == "json"
+            p [year,month,day,is_json,f]
             d = Model::Day.new("#{year}#{month}#{day}")
-            title = "#{year}/#{month}/#{day} #{d.meta["title"]}"
-            result = self.render("title = #{title.inspect}") { ERB.new(File.read("#{Config.template}/day.erb")).result(binding) }
-            open("#{Config.public}/#{year}#{month}#{day}.html","w"){|io|io.puts result}
+            if is_json
+              result = {"year" => year.to_i, "month" => month.to_i, "day" => day.to_i}.merge(d.to_hash).to_json
+              open("#{Config.public}/#{year}#{month}#{day}.json","w"){|io|io.puts result}
+            else
+              title = "#{year}/#{month}/#{day} #{d.meta["title"]}"
+              result = self.render("title = #{title.inspect}") { ERB.new(File.read("#{Config.template}/day.erb")).result(binding) }
+              open("#{Config.public}/#{year}#{month}#{day}.html","w"){|io|io.puts result}
+            end
           end
         end
         FileUtils.cp_r(Dir["#{Config.template}/raw/*"],Config.public)
@@ -85,7 +103,10 @@ module Yakiudon
         diarys = Dir["#{Config.db}/*.html"].map{|fn| fn.sub(Config.db+"/","") }
         files =  [diarys]
         files << diarys.map{|fn| fn.gsub(/\d\d.html$/,".html") }.uniq
+        files << diarys.map{|fn| fn.gsub(/\d\d.html$/,".json") }.uniq
+        files << diarys.map{|fn| fn.gsub(/.html$/,".json") }.uniq
         files << "index.html"
+        files << "index.json"
         files << "feed.xml"
 
         self.build(*files.flatten.uniq)
@@ -95,6 +116,7 @@ module Yakiudon
 
       def renew_index
         Model::Meta["file"]["index.html"] = Model::Day.all.map{|d|d.id}.sort.reverse.take(Config.recent)
+        Model::Meta["file"]["index.json"] = Model::Day.all.map{|d|d.id}.sort.reverse.take(Config.recent)
         Model::Meta["file"]["feed.xml"] = Model::Meta["file"]["index.html"]
       end
     end
