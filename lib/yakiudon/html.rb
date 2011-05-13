@@ -80,7 +80,6 @@ module Yakiudon
             month = $2
             day = $3
             is_json = $4 == "json"
-            p [year,month,day,is_json,f]
             d = Model::Day.new("#{year}#{month}#{day}")
             if is_json
               result = {"year" => year.to_i, "month" => month.to_i, "day" => day.to_i}.merge(d.to_hash).to_json
@@ -90,6 +89,10 @@ module Yakiudon
               result = self.render("title = #{title.inspect}") { ERB.new(File.read("#{Config.template}/day.erb")).result(binding) }
               open("#{Config.public}/#{year}#{month}#{day}.html","w"){|io|io.puts result}
             end
+          when "all.json"
+            ds = Model::Meta["file"]["all.json"].map { |i| h = Model::Day.new(i).to_hash; h.delete("html"); h.delete("markdown"); h }
+            result = {"days" => ds}.to_json
+            open("#{Config.public}/all.json","w"){|io|io.puts result}
           end
         end
         FileUtils.cp_r(Dir["#{Config.template}/raw/*"],Config.public)
@@ -107,6 +110,7 @@ module Yakiudon
         files << diarys.map{|fn| fn.gsub(/.html$/,".json") }.uniq
         files << "index.html"
         files << "index.json"
+        files << "all.json"
         files << "feed.xml"
 
         self.build(*files.flatten.uniq)
@@ -115,9 +119,11 @@ module Yakiudon
       end
 
       def renew_index
-        Model::Meta["file"]["index.html"] = Model::Day.all.map{|d|d.id}.sort.reverse.take(Config.recent)
-        Model::Meta["file"]["index.json"] = Model::Day.all.map{|d|d.id}.sort.reverse.take(Config.recent)
+        a = Model::Day.all.map{|d|d.id}.sort.reverse
+        Model::Meta["file"]["index.html"] = a.take(Config.recent)
+        Model::Meta["file"]["index.json"] = Model::Meta["file"]["index.html"]
         Model::Meta["file"]["feed.xml"] = Model::Meta["file"]["index.html"]
+        Model::Meta["file"]["all.json"] = a
       end
     end
   end

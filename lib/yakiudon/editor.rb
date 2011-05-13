@@ -51,6 +51,7 @@ end
 post "/build" do
 	protected!
 	Yakiudon::HTML.renew_index
+  Yakiudon::Model::Meta.save
 	Yakiudon::HTML.build_all
 	redirect "#{Yakiudon::Config.url}/index.html"
 end
