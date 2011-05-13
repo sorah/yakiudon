@@ -1,9 +1,9 @@
-<form action="<%= Yakiudon::Config.url %>/edit/<%= @day.id %>" method="POST">
-	<%= @day.id %> - <input type="input" name="title" style="width: 415px"><br>
+<form action="<%= Yakiudon::Config.url %>/edit/<%=h @day.id %>" method="POST">
+  <%=h @day.id %> - <input type="input" name="title" style="width: 415px" value="<%=h @day.meta["title"] || "" %>"><br>
 	<textarea name="body" style="width: 500px; height: 400px"><%= @day.markdown %></textarea><br>
 	<input type="submit" name="a" value="Save">
 </form>
-<form action="<%= Yakiudon::Config.url %>/edit/<%= @day.id %>" method="POST">
+<form action="<%= Yakiudon::Config.url %>/edit/<%=h @day.id %>" method="POST">
 	<input type="submit" name="a" value="Delete">
 </form>
 
