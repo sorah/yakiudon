@@ -20,10 +20,12 @@ get "/edit/:id" do
   protected!
   id = params[:id].gsub(/[^\d]/,"")
   @day = Yakiudon::Model::Day.load(id)
+  Yakiudon::Model::Day.release
   erb :edit
 end
 
 get "/edit" do
+  Yakiudon::Model::Day.release
   redirect "#{Yakiudon::Config.url}/edit/#{Time.now.strftime("%Y%m%d")}"
 end
 
@@ -34,6 +36,7 @@ post "/edit/:id" do
   day = Yakiudon::Model::Day.load(id)
   if params[:a] == "Delete"
     day.delete
+    Yakiudon::Model::Day.release
     redirect "#{Yakiudon::Config.url}/index.html"
   else
     day.markdown = params[:body]
@@ -43,6 +46,7 @@ post "/edit/:id" do
     Yakiudon::HTML.renew_index
     Yakiudon::Model::Meta.save
     Yakiudon::HTML.build_includes(id)
+    Yakiudon::Model::Day.release
 
     redirect "#{Yakiudon::Config.url}/#{id}.html"
   end
@@ -53,5 +57,6 @@ post "/build" do
   Yakiudon::HTML.renew_index
   Yakiudon::Model::Meta.save
   Yakiudon::HTML.build_all
+  Yakiudon::Model::Day.release
   redirect "#{Yakiudon::Config.url}/index.html"
 end

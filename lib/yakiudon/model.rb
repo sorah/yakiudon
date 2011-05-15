@@ -58,6 +58,11 @@ module Yakiudon
         end
       end
 
+      def self.release
+        @@caches = {}
+        GC.start
+      end
+
       def initialize(id)
         @id = id.sub(/\.html$/,"").sub(/^.+\//,"").gsub(/[^\d]/,"")
         @html_path     = "#{Config.db}/#{id}#{SUFFIX_HTML}"
@@ -67,7 +72,7 @@ module Yakiudon
       attr_reader :id
 
       def unload
-        @markwdown = nil
+        @markdown = nil
         @html = nil
       end
 
