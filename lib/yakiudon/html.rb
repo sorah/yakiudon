@@ -23,15 +23,15 @@ module Yakiudon
           title = nil
           case f
           when "index.html"
-            days = Model::Meta["file"]["index.html"].map { |i| Model::Day.new(i) }
+            days = Model::Meta["file"]["index.html"].map { |i| Model::Day.load(i) }
             result = self.render("title = #{title.inspect}") { ERB.new(File.read("#{Config.template}/index.erb")).result(binding) }
             open("#{Config.public}/index.html","w"){|io|io.puts result}
           when "index.json"
-            days = Model::Meta["file"]["index.html"].map { |i| Model::Day.new(i) }
+            days = Model::Meta["file"]["index.html"].map { |i| Model::Day.load(i) }
             result = {"days" => days.map(&:to_hash)}
             open("#{Config.public}/index.json","w"){|io|io.puts result}
           when "feed.xml"
-            days = Model::Meta["file"]["feed.xml"].map { |i| Model::Day.new(i) }
+            days = Model::Meta["file"]["feed.xml"].map { |i| Model::Day.load(i) }
             r = <<-EOR
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
@@ -65,7 +65,7 @@ module Yakiudon
             year = $1
             month = $2
             is_json = $3 == "json"
-            days = Model::Meta["file"]["#{year}#{month}.html"].map { |i| Model::Day.new(i) }
+            days = Model::Meta["file"]["#{year}#{month}.html"].map { |i| Model::Day.load(i) }
             if is_json
               result = {"year" => year.to_i, "month" => month.to_i,
                         "days" => days.map(&:to_hash)}.to_json
@@ -80,7 +80,7 @@ module Yakiudon
             month = $2
             day = $3
             is_json = $4 == "json"
-            d = Model::Day.new("#{year}#{month}#{day}")
+            d = Model::Day.load("#{year}#{month}#{day}")
             if is_json
               result = {"year" => year.to_i, "month" => month.to_i, "day" => day.to_i}.merge(d.to_hash).to_json
               open("#{Config.public}/#{year}#{month}#{day}.json","w"){|io|io.puts result}
@@ -90,7 +90,7 @@ module Yakiudon
               open("#{Config.public}/#{year}#{month}#{day}.html","w"){|io|io.puts result}
             end
           when "all.json"
-            ds = Model::Meta["file"]["all.json"].map { |i| h = Model::Day.new(i).to_hash; h.delete("html"); h.delete("markdown"); h }
+            ds = Model::Meta["file"]["all.json"].map { |i| h = Model::Day.load(i).to_hash; h.delete("html"); h.delete("markdown"); h }
             result = {"days" => ds}.to_json
             open("#{Config.public}/all.json","w"){|io|io.puts result}
           end

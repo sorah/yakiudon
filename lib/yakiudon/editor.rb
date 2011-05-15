@@ -19,7 +19,7 @@ end
 get "/edit/:id" do
   protected!
   id = params[:id].gsub(/[^\d]/,"")
-  @day = Yakiudon::Model::Day.new(id)
+  @day = Yakiudon::Model::Day.load(id)
   erb :edit
 end
 
@@ -31,7 +31,7 @@ post "/edit/:id" do
   protected!
   id = params[:id].gsub(/[^\d]/,"")
   return "invalid id" unless id.size == 8
-  day = Yakiudon::Model::Day.new(id)
+  day = Yakiudon::Model::Day.load(id)
   if params[:a] == "Delete"
     day.delete
     redirect "#{Yakiudon::Config.url}/index.html"

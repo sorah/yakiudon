@@ -41,12 +41,21 @@ module Yakiudon
     class Day
       include ERB::Util
 
+      @@caches = {}
+
       SUFFIX_MARKDOWN = ".mkd"
       SUFFIX_HTML = ".html"
 
       def self.all
         Dir["#{Config.db}/*.html"].select{|f| /\/\d{8}.html$/ =~ f } \
                                   .map{|f| self.new(f.sub(Config.db+"/","").sub(/\.html$/,"")) }
+      end
+
+      def self.load(id)
+        id = id.sub(/\.html$/,"").sub(/^.+\//,"").gsub(/[^\d]/,"")
+        if @@caches[id]; @@caches[id]
+        else; @@caches[id] = self.new(id)
+        end
       end
 
       def initialize(id)
@@ -56,6 +65,11 @@ module Yakiudon
       end
 
       attr_reader :id
+
+      def unload
+        @markwdown = nil
+        @html = nil
+      end
 
       def markdown
         if @markdown; @markdown
